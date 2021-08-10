@@ -32,25 +32,9 @@
                         <button type="button" class="btn btn-primary b1" onclick="blacknwhite()";>Black And White</button>
                     </div>
                 </div>
-                <div class="container thumbnail-items">
-                  <div class="phone" style="margin:5%;">
-                    <div class="thumbnail text-center">
-                      <img src="img1.jpg" alt="..." style="width:70%;margin:5%;" onclick="changeImage('b5d8b0d7-294e-4395-8909-0672cd620a9a')">
-                      <h6>Image1</h6>
-                    </div>
-                    <div class="thumbnail text-center">
-                        <img src="img2.jpg" alt="..."  style="width:70%;margin:5%;" onclick="changeImage('03ad3a83-3a3c-4caf-9c5b-df880740891d')">
-                        <h6>Image2</h6>
-                      </div>
-                      <div class="thumbnail text-center">
-                          <img src="img3.jpg" alt="..." style="width:70%;margin:5%;" onclick="changeImage('f1f63d98-ef59-42c7-ba8a-0f2eccdc6dbe')">
-                        <h6>Image3</h6>
-
-                        </div>
-                        <div class="thumbnail text-center">
-                            <img src="img4.jpg" alt="..." style="width:70%;margin:5%;" onclick="changeImage('5ed55287-69a4-49fc-94bb-eaeb5c7f1e6b')">
-                        <h6>Image4</h6>
-
+                <div class="uploadButton">
+                  <input id="fileupload" type="file" name="fileupload" />
+					<button id="upload-button" onclick="uploadFile()"> Upload </button>
                           </div>
                       
                     </div>
@@ -67,13 +51,15 @@
 	 
 <script>
 
-const authToken='b7724ee8-5524-45c1-8c0d-6b684b3338d0';
+const authToken='e2be7601-d925-4ee0-a270-be355652264d';
 const assetId='9e777422-4510-495e-8525-c69642bcc199';
 //'f53483db-5fe7-45dd-ac31-bc06478213b7';//'f357919f-927f-4e57-8bcb-f0c5f2080404';
 var selectNodeID='';
 var selectNodeName='';
 var playerObj;
 var configuratorobj;
+var fileId;
+var jobId;
 window
 .threekitPlayer({
 authToken,
@@ -91,7 +77,48 @@ addToolToScene();
 }
 ); //end of async api
 
+async function uploadFile() {
 
+
+var myHeaders = new Headers();
+//myHeaders.append("Authorization", "Bearer 8424166a-90f5-4fc7-b94d-ab4bf0d67e74");
+
+var formdata = new FormData();
+formdata.append("orgId", "9d405cc0-ef2d-4e9e-bd3a-9893e722edb2"); //Digitize
+formdata.append("files", fileupload.files[0]);
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: formdata,
+  redirect: 'follow'
+};
+
+
+    fetch("https://preview.threekit.com/api/catalog/assets/upload?bearer_token=e2be7601-d925-4ee0-a270-be355652264d", requestOptions)
+   .then(response => response.json())
+     .then((result) => {
+	 var a = result[0].jobId;
+	 fileId = result[0].job.parameters["fileId"];
+	 console.log(a);
+	 
+	getassetId(a).then;
+	 //.then(response => response.json())
+	 //.then((result) => {console.log(result);});
+	 
+	 //changeImage(imageValue)
+	 }
+	 );
+   
+  // .then(result => fileId = result[0].job.parameters["fileId"], console.log(fileId))
+   //.then(response => response.json())
+   //.then(result => jobId = result[0].jobId)
+   //.catch(error => console.log('error', error));
+   
+  
+  
+
+}
 
 function addToolToScene()
 {
@@ -150,6 +177,11 @@ async function getMaterialConfigurator() {
    configuratorobj=await playerObj.getConfiguratorInstance({from : api.scene.findNode({from : assetInstance,name : selectNodeName}) , name : 'FrontFace',plug : 'Material',property : 'reference' })
 //console.log(configuratorobj);
 //configuratorobj.setConfiguration({'sourceImage' : {assetId:'28cde54d-c73b-4ed0-8548-a67faf4129e8'}})
+}
+
+async function getassetId(jobId_local) {
+ fetch("https://preview.threekit.com/api/catalog/jobs/"+jobId_local+"?bearer_token=e2be7601-d925-4ee0-a270-be355652264d&orgId=9d405cc0-ef2d-4e9e-bd3a-9893e722edb2")
+	.then(asset => console.log(asset))   
 }
 
 function movefourdirection(direction)
